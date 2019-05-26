@@ -162,6 +162,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(getString(R.string.default_brightness), brightness);
                 editor.commit();
+                turnOnLights();
+
+//                updateLights();
             }
         });
 
@@ -431,6 +434,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
+//    public void updateLights() {
+//        BridgeState bridgeState = bridge.getBridgeState();
+//        List<LightPoint> lights = bridgeState.getLights();
+//
+//        for (final LightPoint light : lights) {
+//            final LightState lightState = new LightStateImpl();
+//
+//            if(!light.getLightState().isOn()) {
+//                lightState.setOn(true);
+//                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+//                brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
+//                Log.i(TAG, "Brightness" + lightState.getBrightness());
+//                lightState.setBrightness(brightness);
+//            }
+//
+//            light.updateState(lightState, BridgeConnectionType.LOCAL, new BridgeResponseCallback() {
+//                @Override
+//                public void handleCallback(Bridge bridge, ReturnCode returnCode, List<ClipResponse> list, List<HueError> errorList) {
+//                    if (returnCode == ReturnCode.SUCCESS) {
+//                        Log.i(TAG, "Turn on light " + light.getIdentifier() + " to brightness " + lightState.getBrightness());
+//                    } else {
+//                        Log.e(TAG, "Error turning on light " + light.getIdentifier());
+//                        for (HueError error : errorList) {
+//                            Log.e(TAG, error.toString());
+//                        }
+//                    }
+//                }
+//            });
+//        }
+//    }
+
     public void turnOnLights() {
         BridgeState bridgeState = bridge.getBridgeState();
         List<LightPoint> lights = bridgeState.getLights();
@@ -438,13 +472,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (final LightPoint light : lights) {
             final LightState lightState = new LightStateImpl();
 
-            if(!light.getLightState().isOn()) {
+//            if(!light.getLightState().isOn()) {
                 lightState.setOn(true);
                 SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
                 brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
                 Log.i(TAG, "Brightness" + lightState.getBrightness());
                 lightState.setBrightness(brightness);
-            }
+//            }
 
             light.updateState(lightState, BridgeConnectionType.LOCAL, new BridgeResponseCallback() {
                 @Override

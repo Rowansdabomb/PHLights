@@ -24,28 +24,29 @@
 
     <Button
         android:id="@+id/turn_on_lights_button"
-        style="@style/ButtonStyle"
+        style="@android:style/Widget.Holo.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:background="#009688"
         android:minHeight="48dip"
         android:text="On" />
 
     <Button
         android:id="@+id/turn_off_lights_button"
-        style="@style/ButtonStyle"
+        style="@android:style/Widget.Holo.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:background="#009688"
         android:maxHeight="48dp"
         android:minHeight="48dip"
         android:text="Off" />
 
     <LinearLayout
         android:id="@+id/default_brightness_container"
-        style="@style/ButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="293dp"
         android:layout_gravity="top"
@@ -66,8 +67,10 @@
 
         <SeekBar
             android:id="@+id/default_brightness_seekbar"
+            style="@style/Widget.AppCompat.SeekBar"
             android:layout_width="match_parent"
-            android:layout_height="30dp" />
+            android:layout_height="30dp"
+            android:progressTint="#009688" />
 
 
 
@@ -93,11 +96,12 @@
 
     <Button
         android:id="@+id/bridge_discovery_button"
-        style="@style/ButtonStyle"
+        style="@android:style/Widget.Holo.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
+        android:background="#009688"
         android:minHeight="48dip"
         android:text="Re-run bridge discovery" />
 
