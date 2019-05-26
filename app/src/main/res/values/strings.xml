@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">PHLights</string>
+    <string name="title_activity_bridge_discovery">Light Defaults</string>
+    <string name="default_brightness">defaultBrightness</string>
+    <string name="default_notification_channel_id">myNotification</string>
+    <string name="default_notification_channel_title">My Notification</string>
+    <string name="turn_lights_off">Off</string>
+    <string name="turn_lights_on">On</string>
+    <string name="TURN_ON_LIGHTS">TURN_ON_LIGHTS</string>
+    <string name="TURN_OFF_LIGHTS">TURN_OFF_LIGHTS</string>
+    <string name="set_lights_brightness">Brightness</string>
+    <string name="notification_title">PHLights</string>
+    <string name="on_button">On</string>
+    <string name="off_button">Off</string>
+</resources>

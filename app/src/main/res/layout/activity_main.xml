@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.philips.lighting.hue.demo.huequickstartapp.MainActivity"
+    android:padding="16dp"
+    android:background="#ffffff">
+
+    <ImageView
+        android:id="@+id/pushlink_image"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/pushlink_image" />
+
+    <ListView
+        android:id="@+id/bridge_discovery_result_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/turn_on_lights_button"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:minHeight="48dip"
+        android:text="On" />
+
+    <Button
+        android:id="@+id/turn_off_lights_button"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:maxHeight="48dp"
+        android:minHeight="48dip"
+        android:text="Off" />
+
+    <LinearLayout
+        android:id="@+id/default_brightness_container"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="293dp"
+        android:layout_gravity="top"
+        android:layout_weight="5"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/default_brightness_label"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="Default Brightness" />
+
+        <TextView
+            android:id="@+id/default_brightness_seekbar_value"
+            android:layout_width="33dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center" />
+
+        <SeekBar
+            android:id="@+id/default_brightness_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="30dp" />
+
+
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp"
+        android:textAlignment="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        tools:text="Press the link button to authenticate" />
+
+    <TextView
+        android:id="@+id/bridge_ip_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:textAlignment="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        tools:text=" Bridge IP:192.168.1.1:600026" />
+
+    <Button
+        android:id="@+id/bridge_discovery_button"
+        style="@style/ButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:minHeight="48dip"
+        android:text="Re-run bridge discovery" />
+
+
+</LinearLayout>
