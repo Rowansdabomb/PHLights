@@ -7,6 +7,6 @@
         android:bottom="7dp" />
     <stroke
         android:width="1dip"
-        android:color="@color/colorAccent" />
-    <corners android:radius= "8dp" />
+        android:color="@color/colorPrimaryLight" />
+    <corners android:radius= "16dp" />
 </shape>

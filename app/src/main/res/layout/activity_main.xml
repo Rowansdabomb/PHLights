@@ -22,60 +22,6 @@
         android:layout_height="match_parent"
         android:visibility="gone"/>
 
-    <Button
-        android:id="@+id/turn_on_lights_button"
-        style="@android:style/Widget.Holo.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:background="#009688"
-        android:minHeight="48dip"
-        android:text="On" />
-
-    <Button
-        android:id="@+id/turn_off_lights_button"
-        style="@android:style/Widget.Holo.Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:background="#009688"
-        android:maxHeight="48dp"
-        android:minHeight="48dip"
-        android:text="Off" />
-
-    <LinearLayout
-        android:id="@+id/default_brightness_container"
-        android:layout_width="match_parent"
-        android:layout_height="293dp"
-        android:layout_gravity="top"
-        android:layout_weight="5"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/default_brightness_label"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:text="Default Brightness" />
-
-        <TextView
-            android:id="@+id/default_brightness_seekbar_value"
-            android:layout_width="33dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="center" />
-
-        <SeekBar
-            android:id="@+id/default_brightness_seekbar"
-            style="@style/Widget.AppCompat.SeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:progressTint="#009688" />
-
-
-
-    </LinearLayout>
-
     <TextView
         android:id="@+id/status_text"
         android:layout_width="match_parent"
@@ -96,14 +42,49 @@
 
     <Button
         android:id="@+id/bridge_discovery_button"
-        style="@android:style/Widget.Holo.Button"
+        style="@style/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        android:background="#009688"
         android:minHeight="48dip"
         android:text="Re-run bridge discovery" />
 
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp">
+        <com.marcinmoskala.arcseekbar.ArcSeekBar
+            android:id="@+id/default_brightness_seekbar"
+            android:layout_width="269dp"
+            android:layout_height="177dp"
+            android:layout_centerInParent="true" />
+        <TextView
+            android:id="@+id/default_brightness_seekbar_value"
+            android:layout_width="42dp"
+            android:layout_height="100dp"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="60dp"
+            android:gravity="bottom"
+            android:textAlignment="center" />
+        <Button
+            android:id="@+id/toggle_light_button"
+            style="@style/roundButton"
+            android:layout_width="160dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="60dp"
+            android:layout_centerInParent="true"
+            android:text="On"
+            android:textAllCaps="true"
+            android:textSize="64dp" />
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/toggle_background_service"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/disable_notification"
+        style="@style/button"/>
 
 </LinearLayout>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="36dp"
+    tools:context="com.philips.lighting.hue.demo.huequickstartapp.MainActivity"
+    android:paddingHorizontal="12dp">
+
+    <LinearLayout
+        android:layout_width="120dp"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/notification_icon"
+            android:layout_width="20dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:paddingVertical="4dp"
+            android:scaleType="fitStart"
+            app:srcCompat="@drawable/lightbulb" />
+
+
+        <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/notification_title"
+            style="@android:style/Widget.DeviceDefault.Light.TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="400"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:text="@string/notification_title"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/on_button"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="24sp"
+            android:layout_weight="1"
+            android:background="#F0F0F0"
+            android:fontFamily="sans-serif-condensed-light"
+            android:text="@string/on_button"
+            android:textColor="#999999"
+            android:textSize="14sp" />
+
+        <Button xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/off_button"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="match_parent"
+            android:layout_height="24sp"
+            android:layout_marginStart="8sp"
+            android:layout_weight="1"
+            android:background="#F0F0F0"
+            android:fontFamily="sans-serif-condensed-light"
+            android:text="@string/off_button"
+            android:textColor="#999999" />
+    </LinearLayout>
+</LinearLayout>

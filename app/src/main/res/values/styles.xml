@@ -6,12 +6,11 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:buttonStyle">@style/button</item>
     </style>
 
     <style name="NotificationButtonStyle" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_height">20dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:orientation">vertical</item>
         <item name="android:color">#00000000</item>
@@ -24,14 +23,20 @@
 
     <style name="button" parent="@android:style/Widget.Button">
         <item name="android:gravity">center_vertical|center_horizontal</item>
-        <item name="android:textColor">#FFFFFFFF</item>
-        <item name="android:shadowColor">#FF000000</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">-1</item>
-        <item name="android:shadowRadius">0.2</item>
+        <item name="android:textColor">@color/colorPrimary</item>
         <item name="android:textSize">16dip</item>
         <item name="android:textStyle">normal</item>
         <item name="android:background">@drawable/button</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="roundButton" parent="@android:style/Widget.Button">
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">32dp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:background">@drawable/round_button</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
     </style>

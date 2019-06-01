@@ -21,6 +21,9 @@ import android.widget.ListView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.marcinmoskala.arcseekbar.ArcSeekBar;
+import com.marcinmoskala.arcseekbar.ProgressListener;
 import com.philips.lighting.hue.demo.huequickstartapp.NotificationBroadcastReceiver;
 
 import android.content.SharedPreferences;
@@ -69,18 +72,16 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import static android.support.v4.app.NotificationCompat.VISIBILITY_PUBLIC;
-
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 
     private static final String TAG = "HueQuickStartApp";
 
-    private static final int MAX_HUE = 65535;
     private int brightness = 75;
 
     private Bridge bridge;
     private Entertainment entertainment;
-    private boolean entertainmentPlaying = false;
+    private boolean lightsAreOn = false;
+    private boolean backgroundServiceRunning = false;
 
     private BridgeDiscovery bridgeDiscovery;
 
@@ -92,11 +93,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView bridgeIpTextView;
     private View pushlinkImage;
     private Button bridgeDiscoveryButton;
-    private Button turnOnLightsButton;
-    private Button turnOffLightsButton;
-    private LinearLayout defaultBrightnessContainer;
+    private Button toggleLightButton;
+    private Button toggleBackgroundService;
     private TextView defaultBrightnessSeekBarValue;
-    private SeekBar defaultBrightnessSeekBar;
+    private ArcSeekBar defaultBrightnessSeekBar;
 
     private NotificationManager NotificationManager;
     private BroadcastReceiver NotificationReceiver = null;
@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Context context = getApplicationContext();
 
         bridge = null;
         entertainment = null;
@@ -130,56 +131,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pushlinkImage = findViewById(R.id.pushlink_image);
         bridgeDiscoveryButton = (Button)findViewById(R.id.bridge_discovery_button);
         bridgeDiscoveryButton.setOnClickListener(this);
-        turnOnLightsButton = (Button)findViewById(R.id.turn_on_lights_button);
-        turnOnLightsButton.setOnClickListener(this);
-        turnOffLightsButton = (Button)findViewById(R.id.turn_off_lights_button);
-        turnOffLightsButton.setOnClickListener(this);
-        defaultBrightnessContainer = (LinearLayout)findViewById(R.id.default_brightness_container);
-        defaultBrightnessSeekBar = (SeekBar)findViewById(R.id.default_brightness_seekbar);
+        toggleLightButton = (Button)findViewById(R.id.toggle_light_button);
+        toggleLightButton.setOnClickListener(this);
+        toggleBackgroundService = (Button)findViewById(R.id.toggle_background_service);
+        toggleBackgroundService.setOnClickListener(this);
+
+        defaultBrightnessSeekBar = (ArcSeekBar)findViewById(R.id.default_brightness_seekbar);
 
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
-        defaultBrightnessSeekBar.setProgress(brightness);
+        defaultBrightnessSeekBar.setOnClickListener(this);
         defaultBrightnessSeekBarValue = (TextView)findViewById(R.id.default_brightness_seekbar_value);
-        defaultBrightnessSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        ProgressListener progressListener = new ProgressListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int val = (progress * (seekBar.getWidth() - 2 * seekBar.getThumbOffset())) / seekBar.getMax();
+            public void invoke(int progress) {
                 defaultBrightnessSeekBarValue.setText("" + progress);
-                defaultBrightnessSeekBarValue.setX(seekBar.getX() + val - seekBar.getThumbOffset());
                 brightness = (255 * progress) / 100;
             }
+        };
+        progressListener.invoke(brightness);
 
+        ProgressListener onStopListener = new ProgressListener() {
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void invoke(int progress) {
 //              save default brightness to local storage
                 SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putInt(getString(R.string.default_brightness), brightness);
                 editor.commit();
                 turnOnLights();
-
-//                updateLights();
             }
-        });
+        };
+        defaultBrightnessSeekBar.setOnProgressChangedListener(progressListener);
+        defaultBrightnessSeekBar.setOnStopTrackingTouch(onStopListener);
+        defaultBrightnessSeekBar.setProgressBackgroundColor(R.color.colorPrimary);
 
         // Create the BroadCastReceiver
         NotificationReceiver = new NotificationBroadcastReceiver(this);
 
         // Register the filter
         IntentFilter NotificationFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        NotificationFilter.addAction("android.intent.action.TURN_OFF_LIGHTS");
-        NotificationFilter.addAction("android.intent.action.TURN_ON_LIGHTS");
+        NotificationFilter.addAction("android.intent.action." + context.getString(R.string.TURN_ON_LIGHTS));
+        NotificationFilter.addAction("android.intent.action." + context.getString(R.string.TURN_OFF_LIGHTS));
         this.registerReceiver(NotificationReceiver, NotificationFilter);
 
         IntentFilter receiver = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        receiver.addAction("TURN_OFF_LIGHTS");
-        receiver.addAction("TURN_ON_LIGHTS");
+        receiver.addAction(context.getString(R.string.TURN_ON_LIGHTS));
+        receiver.addAction(context.getString(R.string.TURN_OFF_LIGHTS));
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -193,8 +192,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         };
         this.registerReceiver(broadcastReceiver, receiver);
 
-        createNotification("Light Control", getApplicationContext());
-
         // Connect to a bridge or start the bridge discovery
         String bridgeIp = getLastUsedBridgeIp();
         if (bridgeIp == null) {
@@ -202,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             connectToBridge(bridgeIp);
         }
+
+        Intent service = new Intent(context, BackgroundService.class);
+        context.startService(service);
     }
 
     @Override
@@ -211,57 +211,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unregisterReceiver(broadcastReceiver);
     }
 
-    private void createNotification(String aMessage, Context context) {
-        final int NOTIFY_ID = 0; // ID of notification
-        String id = context.getString(R.string.default_notification_channel_id); // default_channel_id
-        String title = context.getString(R.string.default_notification_channel_title); // Default Channel
+    public void startService(View v) {
+        Intent serviceIntent = new Intent(this, BackgroundService.class);
+        serviceIntent.putExtra("fixthis", "random");
 
-        NotificationCompat.Builder builder;
+        startService(serviceIntent);
+    }
 
-        if (NotificationManager == null) {
-            NotificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
-        }
-
-        Intent OnIntent = new Intent(this, NotificationBroadcastReceiver.class);
-        OnIntent.setAction("android.intent.action.TURN_ON_LIGHTS")
-                .putExtra("1", false);
-        PendingIntent OnPendingIntent = PendingIntent.getBroadcast(this, 0, OnIntent, 0);
-
-        Intent OffIntent = new Intent(this, NotificationBroadcastReceiver.class);
-        OffIntent.setAction("android.intent.action.TURN_OFF_LIGHTS")
-                .putExtra("2", false);
-        PendingIntent OffPendingIntent = PendingIntent.getBroadcast(this, 0, OffIntent, 0);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel mChannel = NotificationManager.getNotificationChannel(id);
-            if (mChannel == null) {
-                mChannel = new NotificationChannel(id, title, importance);
-                mChannel.enableVibration(true);
-                mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-                NotificationManager.createNotificationChannel(mChannel);
-            }
-        }
-
-        RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.notification_small);
-//        RemoteViews notificationLayoutExpanded = new RemoteViews(getPackageName(), R.layout.notification_large);
-
-        notificationLayout.setOnClickPendingIntent(R.id.on_button, OnPendingIntent);
-        notificationLayout.setOnClickPendingIntent(R.id.off_button, OffPendingIntent);
-
-        builder = new NotificationCompat.Builder(context, id);
-        builder.setOngoing(true)
-                .setColor(getColor(R.color.colorPrimary))
-                .setTicker(aMessage)
-                .setAutoCancel(false)
-                .setContent(notificationLayout)
-                .setVisibility(VISIBILITY_PUBLIC)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setSmallIcon(R.drawable.lightbulb);   // required
-
-        Notification notification = builder.build();
-        NotificationManager.notify(NOTIFY_ID, notification);
-
+    public void stopService(View v) {
+        Intent serviceIntent = new Intent(this, BackgroundService.class);
+        stopService(serviceIntent);
     }
 
     /**
@@ -434,51 +393,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     };
 
-//    public void updateLights() {
-//        BridgeState bridgeState = bridge.getBridgeState();
-//        List<LightPoint> lights = bridgeState.getLights();
-//
-//        for (final LightPoint light : lights) {
-//            final LightState lightState = new LightStateImpl();
-//
-//            if(!light.getLightState().isOn()) {
-//                lightState.setOn(true);
-//                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-//                brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
-//                Log.i(TAG, "Brightness" + lightState.getBrightness());
-//                lightState.setBrightness(brightness);
-//            }
-//
-//            light.updateState(lightState, BridgeConnectionType.LOCAL, new BridgeResponseCallback() {
-//                @Override
-//                public void handleCallback(Bridge bridge, ReturnCode returnCode, List<ClipResponse> list, List<HueError> errorList) {
-//                    if (returnCode == ReturnCode.SUCCESS) {
-//                        Log.i(TAG, "Turn on light " + light.getIdentifier() + " to brightness " + lightState.getBrightness());
-//                    } else {
-//                        Log.e(TAG, "Error turning on light " + light.getIdentifier());
-//                        for (HueError error : errorList) {
-//                            Log.e(TAG, error.toString());
-//                        }
-//                    }
-//                }
-//            });
-//        }
-//    }
-
     public void turnOnLights() {
         BridgeState bridgeState = bridge.getBridgeState();
         List<LightPoint> lights = bridgeState.getLights();
+        lightsAreOn = true;
 
         for (final LightPoint light : lights) {
             final LightState lightState = new LightStateImpl();
 
-//            if(!light.getLightState().isOn()) {
-                lightState.setOn(true);
-                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-                brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
-                Log.i(TAG, "Brightness" + lightState.getBrightness());
-                lightState.setBrightness(brightness);
-//            }
+            lightState.setOn(true);
+            SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+            brightness = sharedPreferences.getInt(getString(R.string.default_brightness), 75);
+            lightState.setBrightness(brightness);
 
             light.updateState(lightState, BridgeConnectionType.LOCAL, new BridgeResponseCallback() {
                 @Override
@@ -499,6 +425,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void turnOffLights() {
         BridgeState bridgeState = bridge.getBridgeState();
         List<LightPoint> lights = bridgeState.getLights();
+        lightsAreOn = false;
 
         for (final LightPoint light : lights) {
             final LightState lightState = new LightStateImpl();
@@ -538,7 +465,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         // Could not find an existing group, create a new one with all color lights
-
         List<LightPoint> validLights = getValidLights();
 
         if (validLights.isEmpty()) {
@@ -628,7 +554,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     // UI methods
-
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         String bridgeIp = bridgeDiscoveryResults.get(i).getIP();
@@ -638,12 +563,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if (view == turnOnLightsButton) {
-            turnOnLights();
+        if (view == toggleLightButton) {
+            if(lightsAreOn) {
+                toggleLightButton.setText(R.string.on_button);
+                turnOffLights();
+            } else {
+                toggleLightButton.setText(R.string.off_button);
+                turnOnLights();
+            }
         }
 
-        if (view == turnOffLightsButton) {
-            turnOffLights();
+        if (view == toggleBackgroundService) {
+            if(backgroundServiceRunning) {
+                backgroundServiceRunning = false;
+                toggleBackgroundService.setText(R.string.disable_notification);
+                startService((Button)findViewById(R.id.toggle_background_service));
+            } else {
+                backgroundServiceRunning = true;
+                toggleBackgroundService.setText(R.string.enable_notification);
+                stopService((Button)findViewById(R.id.toggle_background_service));
+            }
         }
 
         if (view == bridgeDiscoveryButton) {
@@ -663,9 +602,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bridgeIpTextView.setVisibility(View.GONE);
                 pushlinkImage.setVisibility(View.GONE);
                 bridgeDiscoveryButton.setVisibility(View.GONE);
-                turnOnLightsButton.setVisibility(View.GONE);
-                turnOffLightsButton.setVisibility(View.GONE);
-                defaultBrightnessContainer.setVisibility(View.GONE);
+                toggleLightButton.setVisibility(View.GONE);
 
                 switch (state) {
                     case Idle:
@@ -689,16 +626,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     case Connected:
                         bridgeIpTextView.setVisibility(View.VISIBLE);
                         bridgeDiscoveryButton.setVisibility(View.VISIBLE);
-                        turnOnLightsButton.setVisibility(View.VISIBLE);
-                        turnOffLightsButton.setVisibility(View.VISIBLE);
-                        defaultBrightnessContainer.setVisibility(View.VISIBLE);
+                        toggleLightButton.setVisibility(View.VISIBLE);
                         break;
                     case EntertainmentReady:
                         bridgeIpTextView.setVisibility(View.VISIBLE);
                         bridgeDiscoveryButton.setVisibility(View.VISIBLE);
-                        turnOnLightsButton.setVisibility(View.VISIBLE);
-                        turnOffLightsButton.setVisibility(View.VISIBLE);
-                        defaultBrightnessContainer.setVisibility(View.VISIBLE);
+                        toggleLightButton.setVisibility(View.VISIBLE);
                         break;
                 }
             }
